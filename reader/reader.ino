@@ -1,5 +1,8 @@
 #include <SPI.h>
 
+// 250 kHz, clock idle when high, reading LSB first on falling edge
+SPISettings settings(250000, LSBFIRST, SPI_MODE3);
+
 #define BAUDRATE 38400
 #define CLK 13
 #define DATA 12
@@ -17,6 +20,7 @@ void setup() {
   }
 
   setPins();
+  SPI.begin(); // this overwrites some pin settings - one not needed?
 }
 
 void setPins() {

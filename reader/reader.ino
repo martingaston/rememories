@@ -107,6 +107,7 @@ void loop() {
     // read the incoming byte
     byte incomingByte = Serial.read();  
     delay(10);
+    byte frameAddress = (Serial.read() << 8) + Serial.read();
     readFrame(0); // hardcode test first frame on card
   }
 

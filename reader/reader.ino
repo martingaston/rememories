@@ -10,6 +10,10 @@ SPISettings settings(250000, LSBFIRST, SPI_MODE3);
 #define ATT 10
 #define ACK 2
 
+#define MEMORY_CARD_ACCESS 0x81
+#define READ_COMMAND 0x52
+#define EMPTY_COMMAND 0x00
+
 volatile int ackState = HIGH;
 
 void setup() {
@@ -69,24 +73,25 @@ void readFrame(unsigned int address) {
   digitalWrite(ATT, LOW);
 
   SPI.beginTransaction(settings);
-  command(0x81, 500); // memory card access
-  command(0x52, 500); // send read 'R' command
-  command(0x00, 500); // receive memory card ID1
-  command(0x00, 500); // receive memory card ID2
+  command(MEMORY_CARD_ACCESS, 500); // memory card access
+  command(READ_COMMAND, 500); // send read 'R' command
+  command(EMPTY_COMMAND, 500); // receive memory card ID1
+  command(EMPTY_COMMAND, 500); // receive memory card ID2
   command(addressMSB, 500); // send address MSB
   command(addressLSB, 500); // send address LSB
-  command(0x00, 2800); // receive command acknowledge 1
-  command(0x00, 2800); // receive command acknowledge 2
-  command(0x00, 2800); // receive confirmed address MSB
-  command(0x00, 2800); // receive confirmed address LSB
+  command(EMPTY_COMMAND, 2800); // receive command acknowledge 1
+  command(EMPTY_COMMAND, 2800); // receive command acknowledge 2
+  command(EMPTY_COMMAND, 2800); // receive confirmed address MSB
+  command(EMPTY_COMMAND, 2800); // receive confirmed address LSB
 
   // receive data sector (128 bytes)
   for (int i = 0; i < 128; i++) {
-    Serial.write(command(0x00, 150));
+    byte result = command(EMPTY_COMMAND, 150);
+    Serial.write(result);
   }
 
-  Serial.write(command(0x00, 500)); // checksum (MSB xor LSB xor data)
-  Serial.write(command(0x00, 500)); // memory card end byte, should be 0x47
+  Serial.write(command(EMPTY_COMMAND, 500)); // checksum (MSB xor LSB xor data)
+  Serial.write(command(EMPTY_COMMAND, 500)); // memory card end byte, should be 0x47
   
   SPI.endTransaction();
 
@@ -100,7 +105,7 @@ void loop() {
   if(Serial.available() > 0)
   {
     // read the incoming byte
-    byte incomingByte = Serial.read();    
+    byte incomingByte = Serial.read();  
     delay(10);
     readFrame(0); // hardcode test first frame on card
   }

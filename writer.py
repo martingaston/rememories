@@ -14,7 +14,7 @@ def read_frame(frame_number):
     status = ser.read(1)
 
     if status != b'\x47':
-        raise IOError(f'Memory card end byte on frame {frame_number} not G; {status.decode('utf-8')} returned')
+        raise IOError(f"Memory card end byte on frame {frame_number} not G; {status.decode('utf-8')} returned")
 
     return data
 
